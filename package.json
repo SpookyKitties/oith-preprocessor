@@ -6,8 +6,12 @@
     "node": ">= 10.13 <11"
   },
   "devDependencies": {
+    "@types/expand-tilde": "^2.0.0",
+    "@types/fs-extra": "^5.1.0",
     "@types/jest": "^23.3.12",
-    "@types/node": "^10.12.18",
+    "@types/jsdom": "^12.2.3",
+    "@types/lodash": "^4.14.125",
+    "@types/node": "^10.14.6",
     "@typescript-eslint/eslint-plugin": "^1.7.0",
     "@typescript-eslint/parser": "^1.7.0",
     "eslint": "^5.16.0",
@@ -17,6 +21,7 @@
     "prettier": "1.15.3",
     "rimraf": "^2.6.3",
     "ts-jest": "~23.10.5",
+    "ts-node": "^8.1.0",
     "tsutils": "~3.7.0",
     "typescript": "^3.4.5"
   },
@@ -26,11 +31,19 @@
     "build:watch": "tsc -w -p tsconfig.release.json",
     "lint": "tslint -t stylish --project \"tsconfig.json\"",
     "test": "jest --coverage",
-    "test:watch": "jest --watch"
+    "test:watch": "jest --watch",
+    "tsc": "tsc",
+    "start": "ts-node src/main.ts"
   },
   "author": "Jared Parkinson <jared@parkinson.im>",
   "license": "Apache-2.0",
   "dependencies": {
-    "tslib": "~1.9.3"
+    "cuid": "^2.1.6",
+    "expand-tilde": "^2.0.2",
+    "fast-glob": "^2.2.6",
+    "fs-extra": "^7.0.1",
+    "jsdom": "^15.0.0",
+    "lodash": "^4.17.11",
+    "tslib": "^1.9.3"
   }
 }

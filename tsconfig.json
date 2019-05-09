@@ -15,11 +15,10 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noImplicitAny": false,
+    "esModuleInterop": true,
     "noImplicitThis": false,
-    "strictNullChecks": false
+    "strictNullChecks": false,
+    "outDir": "build"
   },
-  "include": [
-    "src/**/*",
-    "__tests__/**/*"
-  ]
+  "include": ["src/**/*", "__tests__/**/*"]
 }
