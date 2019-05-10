@@ -15,8 +15,6 @@ export enum WType {
   Link = 6,
   RubyRB = 7,
   RubyRT = 8,
-  RubyText = 10,
-  Ruby = 11,
 }
 export enum NoteType {
   New = 1,
