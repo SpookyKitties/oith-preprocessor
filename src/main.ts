@@ -8,17 +8,22 @@ import { writeFile } from 'fs-extra';
 import { removeRubyInAElements } from './flattenWTags';
 
 async function processFiles(fileNames: string[]): Promise<void> {
-  fileNames.slice(0, 1).forEach(
+  fileNames.slice(0, 10000).forEach(
     async (fileName): Promise<void> => {
       const jsdom = await loadFile(fileName);
       const document = jsdom.window.document;
       // console.log(document.documentElement.innerHTML);
       console.log();
+      if (document.querySelectorAll('a[href*=".."] ruby').length > 0) {
+        console.log(fileName);
+      }
       removeRubyInAElements(document);
-      await writeFile(
-        normalize(`./data/${basename(fileName)}`),
-        document.documentElement.outerHTML,
-      );
+      try {
+        await writeFile(
+          normalize(`./data/${basename(fileName)}`),
+          document.documentElement.outerHTML,
+        );
+      } catch {}
 
       // queryWTags(document);
       // parseWTagGroups(document);

@@ -6,7 +6,21 @@ export function copyAttributes(from: Element, to: Element): void {
       if (attr && !to.hasAttribute(attr.name)) {
         // console.log(attr);
 
-        to.setAttribute(attr.name.replace('href', 'ref'), attr.value);
+        if (attr.value === 'href' && from.hasAttribute('a2')) {
+          const regex = new RegExp(
+            `/(?<=(scriptures\/.+?\/)).+?\/[\S]+(?=\.html)/d`,
+          );
+          const newHref = regex.exec(attr.value);
+
+          to.setAttribute(
+            attr.name.replace('href', 'href'),
+            newHref.toString(),
+          );
+        } else {
+          {
+            to.setAttribute(attr.name.replace('href', 'ref'), attr.value);
+          }
+        }
       }
     },
   );
@@ -17,31 +31,28 @@ export function removeRubyInAElements(document: Document): void {
 
   verseElements.forEach(
     (verseElement): void => {
-      const aRubys = verseElement.querySelectorAll('a ruby');
+      const aRubys2 = verseElement.querySelectorAll('a[href*=".."] ruby');
+      Array.from(aRubys2).map(
+        (a): void => {
+          a.setAttribute('a2', 'true');
+        },
+      );
+      const aRubys = verseElement.querySelectorAll(
+        'a[href*="#"] ruby,a[href*=".."] ruby',
+      );
 
       aRubys.forEach(
         (aRuby): void => {
-          // console.log(aRuby.previousElementSibling.outerHTML);
           const parentElement = aRuby.parentElement;
           Array.from(aRuby.parentElement.childNodes).forEach(
             (child): void => {
-              // aRuby.insertAdjacentElement(
-              //   'afterbegin',
-              //   aRuby.previousElementSibling,
-              //   );
               if (child) {
                 copyAttributes(aRuby.parentElement, child as Element);
-                // document.insertBefore(aRuby.parentElement, child);
 
-                console.log((child as Element).outerHTML);
                 aRuby.parentElement.insertAdjacentElement(
                   'beforebegin',
                   child as Element,
                 );
-                // aRuby.parentElement.insertBefore(
-                //   child as Element,
-                //   aRuby.parentElement.previousElementSibling,
-                // );
               }
             },
           );

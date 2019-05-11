@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "description": "Minimalistic boilerplate to quick-start Node.js development in TypeScript.",
   "engines": {
-    "node": ">= 10.13 <11"
+    "node": ">= 11"
   },
   "devDependencies": {
     "@types/expand-tilde": "^2.0.0",
