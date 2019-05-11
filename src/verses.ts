@@ -45,17 +45,6 @@ export function convertTextNodeToNode(
 ): void {
   console.log(element.outerHTML);
 
-  // Array.from(element.childNodes)
-  //   .filter(
-  //     (child): boolean => {
-  //       return child.nodeName !== 'RT' && child.nodeName !== 'RB';
-  //     },
-  //   )
-  //   .map(
-  //     (child): void => {
-  //       console.log(child.nodeName);
-  //     },
-  //   );
   Array.from(element.childNodes)
     .filter(
       (e): boolean => {
@@ -89,31 +78,9 @@ export function queryARubyParents(document: Document): Element[] {
     },
   );
 
-  // Array.from(verseElements).map(
-  //   (verseElement): void => {
-  //     Array.from(verseElement.querySelectorAll(t.toString())).map(
-  //       (ruby: Element): void => {
-  //         // convertTextNodeToNode(document, ruby);
-  //         parents.push(ruby.parentElement);
-  //       },
-  //     );
-  //   },
-  // );
-
   parents.map(
     (parent): void => {
       convertTextNodeToNode(document, parent);
-      // Array.from(parent.childNodes)
-      //   .filter(
-      //     (child): boolean => {
-      //       return child.nodeName === '#text';
-      //     },
-      //   )
-      //   .map(
-      //     (child): void => {
-      //       convertTextNodeToNode(document, child as Element);
-      //     },
-      //   );
     },
   );
   return parents;

@@ -83,8 +83,6 @@ function parseGroups(verse: Element): PreWTagGroup1[] {
         switch (verse.nodeName) {
           case 'A':
           case 'Ruby': {
-            console.log(preWTagGroup1.childNodes.length);
-
             preWTagGroup1.classList = child.parentElement.className.split(' ');
             preWTagGroup1s.push(preWTagGroup1);
             preWTagGroup1 = undefined;
@@ -122,8 +120,6 @@ export function parseWTagGroups(document: Document): WTagGroup[] {
     (verse): void => {
       convertTextNodeToNode(document, verse);
       preWTagGroup1s = preWTagGroup1s.concat(parseGroups(verse));
-
-      console.log();
     },
   );
 
@@ -141,7 +137,6 @@ export function parseWTagGroups(document: Document): WTagGroup[] {
           },
         );
       preWTagGroup1.length = length;
-      console.log(length);
     },
   );
   writeFileSync(
@@ -181,11 +176,11 @@ export function parseWTagGroups(document: Document): WTagGroup[] {
 //     const ruby = document.querySelector('a ruby');
 //     if (ruby && attr) {
 //       ruby.setAttribute(attr.name, attr.value);
-//       console.log(attr.name);
+//
 //     }
 //   },
 // );
 
 // document.querySelectorAll('ruby').forEach(ruby => {
-//   console.log(!ruby.parentElement.classList.contains('verse'));
+//
 // });
