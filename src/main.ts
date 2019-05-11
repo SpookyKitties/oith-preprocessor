@@ -3,8 +3,8 @@ import { getFiles } from './files';
 import { loadFile } from './dom';
 // import { queryWTags } from './wtags';
 // import { parseWTagGroups } from './wTagGroups';
-import { basename, normalize } from 'path';
-import { writeFile } from 'fs-extra';
+// import { basename, normalize } from 'path';
+// import { writeFile } from 'fs-extra';
 import { removeRubyInAElements } from './flattenWTags';
 
 async function processFiles(fileNames: string[]): Promise<void> {
@@ -18,12 +18,12 @@ async function processFiles(fileNames: string[]): Promise<void> {
         console.log(fileName);
       }
       removeRubyInAElements(document);
-      try {
-        await writeFile(
-          normalize(`./data/${basename(fileName)}`),
-          document.documentElement.outerHTML,
-        );
-      } catch {}
+      // try {
+      //   await writeFile(
+      //     normalize(`./data/${basename(fileName)}`),
+      //     document.documentElement.outerHTML,
+      //   );
+      // } catch {}
 
       // queryWTags(document);
       // parseWTagGroups(document);
