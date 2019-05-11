@@ -1,6 +1,6 @@
 import cuid from 'cuid';
 import { W } from './models/w';
-import { queryVerses } from './verses';
+import { queryVerses, convertTextNodeToNode } from './verses';
 import { writeFileSync } from 'fs-extra';
 import { normalize } from 'path';
 
@@ -64,7 +64,9 @@ export class WTagGroupRuby implements WTagGroup {
 }
 
 class PreWTagGroup1 {
+  public classList: string[] | undefined;
   public childNodes: Node[] = [];
+  public length: number = 0;
 }
 
 function parseGroups(verse: Element): PreWTagGroup1[] {
@@ -83,13 +85,19 @@ function parseGroups(verse: Element): PreWTagGroup1[] {
           case 'Ruby': {
             console.log(preWTagGroup1.childNodes.length);
 
+            preWTagGroup1.classList = child.parentElement.className.split(' ');
             preWTagGroup1s.push(preWTagGroup1);
             preWTagGroup1 = undefined;
-            preWTagGroup1s.push({ childNodes: [child] });
+            preWTagGroup1s.push({
+              classList: child.parentElement.className.split(' '),
+              childNodes: [child],
+              length: 0,
+            });
             break;
           }
 
           default: {
+            preWTagGroup1.classList = child.parentElement.className.split(' ');
             preWTagGroup1.childNodes.push(child);
             break;
           }
@@ -108,22 +116,47 @@ function parseGroups(verse: Element): PreWTagGroup1[] {
 export function parseWTagGroups(document: Document): WTagGroup[] {
   const wTagGroups: WTagGroup[] = [];
 
+  let preWTagGroup1s: PreWTagGroup1[] = [];
   const verses = queryVerses(document);
   verses.forEach(
     (verse): void => {
-      writeFileSync(
-        normalize(`./data/${cuid()}.json`),
-        JSON.stringify(
-          parseGroups(verse).map(child => {
-            return child.childNodes.map(c => {
-              return (c as Element).innerHTML;
-            });
-          }),
-        ),
-      );
+      convertTextNodeToNode(document, verse);
+      preWTagGroup1s = preWTagGroup1s.concat(parseGroups(verse));
 
       console.log();
     },
+  );
+
+  preWTagGroup1s.forEach(
+    (preWTagGroup1): void => {
+      const length = preWTagGroup1.childNodes
+        .map(
+          (p): number => {
+            return p.textContent.length;
+          },
+        )
+        .reduce(
+          (p, c): number => {
+            return p + c;
+          },
+        );
+      preWTagGroup1.length = length;
+      console.log(length);
+    },
+  );
+  writeFileSync(
+    normalize(`./data/${cuid()}.json`),
+    JSON.stringify(
+      preWTagGroup1s.map(child => {
+        return {
+          classList: child.classList,
+          length: child.length,
+          chlid: child.childNodes.map(c => {
+            return (c as Element).outerHTML;
+          }),
+        };
+      }),
+    ),
   );
 
   return wTagGroups;

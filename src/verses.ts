@@ -36,6 +36,85 @@ function convertHrefs(document: Document): void {
 export function queryVerses(document: Document): NodeListOf<Element> {
   convertHrefs(document);
   return document.querySelectorAll(
-    'header > *,.hidden-paragraph > .verse, .body-block > p, nav > ul > li > *, .body-block > div > *',
+    'header > *,.hidden-paragraph > .verse, .body-block > p, nav > ul > li > *, .body-block > div > *,.body-block .verse',
   );
+}
+export function convertTextNodeToNode(
+  document: Document,
+  element: Element,
+): void {
+  console.log(element.outerHTML);
+
+  // Array.from(element.childNodes)
+  //   .filter(
+  //     (child): boolean => {
+  //       return child.nodeName !== 'RT' && child.nodeName !== 'RB';
+  //     },
+  //   )
+  //   .map(
+  //     (child): void => {
+  //       console.log(child.nodeName);
+  //     },
+  //   );
+  Array.from(element.childNodes)
+    .filter(
+      (e): boolean => {
+        return e.nodeName === '#text';
+      },
+    )
+    .map(
+      (e): void => {
+        const newElement = document.createElement('span');
+        if (e.textContent.includes('一―二十​')) {
+          console.log(e.textContent);
+        }
+        newElement.textContent = e.textContent;
+        element.replaceChild(newElement, e);
+      },
+    );
+}
+
+export function queryARubyParents(document: Document): Element[] {
+  const verseElements = queryVerses(document);
+  const t: string[] = ['a[href] ruby'];
+  const parents: Element[] = [];
+
+  verseElements.forEach(
+    (verseElement): void => {
+      verseElement.querySelectorAll(t.toString()).forEach(
+        (ar): void => {
+          parents.push(ar.parentElement);
+        },
+      );
+    },
+  );
+
+  // Array.from(verseElements).map(
+  //   (verseElement): void => {
+  //     Array.from(verseElement.querySelectorAll(t.toString())).map(
+  //       (ruby: Element): void => {
+  //         // convertTextNodeToNode(document, ruby);
+  //         parents.push(ruby.parentElement);
+  //       },
+  //     );
+  //   },
+  // );
+
+  parents.map(
+    (parent): void => {
+      convertTextNodeToNode(document, parent);
+      // Array.from(parent.childNodes)
+      //   .filter(
+      //     (child): boolean => {
+      //       return child.nodeName === '#text';
+      //     },
+      //   )
+      //   .map(
+      //     (child): void => {
+      //       convertTextNodeToNode(document, child as Element);
+      //     },
+      //   );
+    },
+  );
+  return parents;
 }

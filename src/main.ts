@@ -3,9 +3,10 @@ import { getFiles } from './files';
 import { loadFile } from './dom';
 // import { queryWTags } from './wtags';
 // import { parseWTagGroups } from './wTagGroups';
-// import { basename, normalize } from 'path';
-// import { writeFile } from 'fs-extra';
+import { basename, normalize } from 'path';
+import { writeFile } from 'fs-extra';
 import { removeRubyInAElements } from './flattenWTags';
+import { parseWTagGroups } from './wTagGroups';
 
 async function processFiles(fileNames: string[]): Promise<void> {
   fileNames.slice(0, 10000).forEach(
@@ -18,15 +19,15 @@ async function processFiles(fileNames: string[]): Promise<void> {
         console.log(fileName);
       }
       removeRubyInAElements(document);
-      // try {
-      //   await writeFile(
-      //     normalize(`./data/${basename(fileName)}`),
-      //     document.documentElement.outerHTML,
-      //   );
-      // } catch {}
+      parseWTagGroups(document);
+      try {
+        await writeFile(
+          normalize(`./data/${basename(fileName)}`),
+          document.documentElement.outerHTML,
+        );
+      } catch {}
 
       // queryWTags(document);
-      // parseWTagGroups(document);
     },
   );
 }

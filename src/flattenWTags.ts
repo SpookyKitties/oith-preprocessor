@@ -1,4 +1,4 @@
-import { queryVerses } from './verses';
+import { queryVerses, queryARubyParents } from './verses';
 
 export function copyAttributes(from: Element, to: Element): void {
   Array.from(from.attributes).forEach(
@@ -7,17 +7,18 @@ export function copyAttributes(from: Element, to: Element): void {
         // console.log(attr);
         // console.log(to.parentElement.getAttribute('href'));
 
-        if (attr.value === 'href' && to.hasAttribute('a2')) {
-          const regex = new RegExp(
-            `/(?<=(scriptures\/.+?\/)).+?\/[\S]+(?=\.html)/d`,
-          );
-          const newHref = regex.exec(attr.value);
+        // if (attr.name === 'href') {
+        //   console.log(attr.value);
+        // }
+
+        if (attr.name === 'href' && !attr.value.startsWith('#')) {
+          // const regex = new RegExp(
+          //   `/(?<=(scriptures\/.+?\/)).+?\/[\S]+(?=\.html)/d`,
+          // );
+          // const newHref = regex.exec(attr.value);
           // console.log(attr.value);
 
-          to.setAttribute(
-            attr.name.replace('href', 'href'),
-            newHref.toString(),
-          );
+          to.setAttribute(attr.name.replace('href', 'href'), attr.value);
         } else {
           {
             to.setAttribute(attr.name.replace('href', 'ref'), attr.value);
@@ -54,6 +55,26 @@ function convertTextNodeToNode(document: Document, element: Element): void {
 
 export function removeRubyInAElements(document: Document): void {
   const verseElements = queryVerses(document);
+  queryARubyParents(document).forEach(
+    (parent): void => {
+      Array.from(parent.childNodes)
+        .filter(
+          (child): boolean => {
+            return (child as Element).outerHTML !== undefined;
+          },
+        )
+        .forEach(
+          (child): void => {
+            copyAttributes(parent, child as Element);
+            parent.insertAdjacentElement('beforebegin', child as Element);
+          },
+        );
+      // console.log(parent.outerHTML);
+      parent.remove();
+    },
+  );
+
+  return;
 
   verseElements.forEach(
     (verseElement): void => {
