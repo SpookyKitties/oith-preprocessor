@@ -33,7 +33,7 @@
     "test": "jest --coverage",
     "test:watch": "jest --watch",
     "tsc": "tsc",
-    "start": "tsc && node --max-old-space-size=9000 build/src/main.js"
+    "start": "rm data/*.json && tsc && node --max-old-space-size=9000 build/src/main.js"
   },
   "author": "Jared Parkinson <jared@parkinson.im>",
   "license": "Apache-2.0",

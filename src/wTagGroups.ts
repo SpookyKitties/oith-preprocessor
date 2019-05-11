@@ -1,4 +1,8 @@
+import cuid from 'cuid';
 import { W } from './models/w';
+import { queryVerses } from './verses';
+import { writeFileSync } from 'fs-extra';
+import { normalize } from 'path';
 
 export enum WTagGroupType {
   A = 0,
@@ -57,4 +61,70 @@ export class WTagGroupRuby implements WTagGroup {
   public type: WTagGroupType = WTagGroupType.Ruby;
   public wRT: W[];
   public wRB: W[];
+}
+
+class PreWTagGroup1 {
+  public childNodes: Node[] = [];
+}
+
+function parseGroups(verse: Element): PreWTagGroup1[] {
+  const preWTagGroup1s: PreWTagGroup1[] = [];
+
+  let preWTagGroup1: PreWTagGroup1 | undefined;
+
+  verse.childNodes.forEach(
+    (child): void => {
+      if (!preWTagGroup1) {
+        preWTagGroup1 = new PreWTagGroup1();
+        preWTagGroup1.childNodes.push(child);
+      } else if (preWTagGroup1) {
+        switch (verse.nodeName) {
+          case 'A':
+          case 'Ruby': {
+            console.log(preWTagGroup1.childNodes.length);
+
+            preWTagGroup1s.push(preWTagGroup1);
+            preWTagGroup1 = undefined;
+            preWTagGroup1s.push({ childNodes: [child] });
+            break;
+          }
+
+          default: {
+            preWTagGroup1.childNodes.push(child);
+            break;
+          }
+        }
+      }
+    },
+  );
+
+  if (preWTagGroup1) {
+    // console.log(preWTagGroup1.childNodes.length);
+    preWTagGroup1s.push(preWTagGroup1);
+  }
+  return preWTagGroup1s;
+}
+
+export function parseWTagGroups(document: Document): WTagGroup[] {
+  const wTagGroups: WTagGroup[] = [];
+
+  const verses = queryVerses(document);
+  verses.forEach(
+    (verse): void => {
+      writeFileSync(
+        normalize(`./data/${cuid()}.json`),
+        JSON.stringify(
+          parseGroups(verse).map(child => {
+            return child.childNodes.map(c => {
+              return (c as Element).innerHTML;
+            });
+          }),
+        ),
+      );
+
+      console.log();
+    },
+  );
+
+  return wTagGroups;
 }

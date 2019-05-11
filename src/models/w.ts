@@ -85,29 +85,3 @@ export class WLink implements W {
   public wType: WType = WType.Link;
   public text: string | undefined;
 }
-
-export class WRuby implements W {
-  public charCount: number[];
-  public optional: boolean;
-  public wType: WType = WType.Ruby;
-  public text: string | undefined;
-}
-export class WRubyRB implements W {
-  public charCount: number[];
-  public optional: boolean;
-  public wType: WType = WType.RubyRB;
-  public text: string | undefined;
-}
-export class WRubyRT implements W {
-  public charCount: number[];
-  public optional: boolean;
-  public wType: WType = WType.RubyRT;
-  public text: string | undefined;
-}
-
-export class WRubyText implements W {
-  public charCount: number[];
-  public optional: boolean;
-  public wType: WType = WType.RubyText;
-  public text: string | undefined;
-}
