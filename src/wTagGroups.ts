@@ -128,3 +128,31 @@ export function parseWTagGroups(document: Document): WTagGroup[] {
 
   return wTagGroups;
 }
+
+// Array.from(document.querySelector('#p2').childNodes)
+//   .filter(child => {
+//     return child.nodeName === 'W';
+//   })
+//   .forEach(child => {
+//     Array.from(child.childNodes)
+//       .filter(d => {
+//         return d.nodeName !== '#text';
+//       })
+//       .forEach(c => {
+//         child.parentElement.insertBefore(c, child);
+//       });
+//   });
+
+// Array.from(document.querySelector('a ruby').parentElement.attributes).forEach(
+//   attr => {
+//     const ruby = document.querySelector('a ruby');
+//     if (ruby && attr) {
+//       ruby.setAttribute(attr.name, attr.value);
+//       console.log(attr.name);
+//     }
+//   },
+// );
+
+// document.querySelectorAll('ruby').forEach(ruby => {
+//   console.log(!ruby.parentElement.classList.contains('verse'));
+// });
