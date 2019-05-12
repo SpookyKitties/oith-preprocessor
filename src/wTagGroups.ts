@@ -8,6 +8,9 @@ export enum WTagGroupType {
   A = 0,
   Text = 1,
   Ruby = 2,
+  ARuby = 3,
+  RB = 4,
+  RT = 5,
 }
 /// WTagGroups exist to provide a parent tag for the basic text groupings found in the document.
 /*
@@ -59,18 +62,18 @@ export class WTagGroupRuby implements WTagGroup {
   public charCountCompress: [number | number];
   public charCount: [number | number] | undefined;
   public type: WTagGroupType = WTagGroupType.Ruby;
-  public wRT: W[];
-  public wRB: W[];
+  public wRT: [number, number];
+  public wRB: [number, number];
 }
 
 export class WTagGroupRubyA implements WTagGroup {
   public charCountCompress: [number | number];
   public charCount: [number | number] | undefined;
   public type: WTagGroupType = WTagGroupType.Ruby;
-  public preRubyText: W[] | undefined;
-  public postRubyText: W[] | undefined;
-  public wRT: W[];
-  public wRB: W[];
+  public preRubyText: [number, number] | undefined;
+  public postRubyText: [number, number] | undefined;
+  public wRT: [number, number];
+  public wRB: [number, number];
 }
 
 class PreWTagGroup1 {
@@ -78,37 +81,43 @@ class PreWTagGroup1 {
   public childNodes: Node[] = [];
   public length: number = 0;
   public id: string;
-  public type: string;
+  public type: WTagGroupType;
 }
 class PreWTagGroup2 {
   public classList: string[] | undefined;
   public charCount: [number, number]; //= 0;
-  public type: string;
+  public type: WTagGroupType;
   public id: string;
 }
 
-function getPreWTagGroup1Type(node: Node): string {
+function getPreWTagGroup1Type(node: Node): WTagGroupType {
   switch (node.nodeName) {
-    case 'A':
-    case 'RUBY': {
-      // console.log(
-      //   `${node.nodeName}  ${(node as Element).hasAttribute('href')}`,
-      // );
-
-      if (node.nodeName === 'RUBY' && (node as Element).hasAttribute('href')) {
-        // console.log('arubyadsf');
-
-        return 'ARuby';
+    case 'A': {
+      if ((node as Element).querySelectorAll('ruby').length > 0) {
+        return WTagGroupType.ARuby;
       } else {
-        return (node as Element).hasAttribute('href')
-          ? `A${node.nodeName}`
-          : node.nodeName;
+        return WTagGroupType.A;
       }
+    }
+    case 'RUBY': {
+      return WTagGroupType.Ruby;
     }
 
     default:
-      return 'text';
+      return WTagGroupType.Text;
   }
+}
+
+function nodeToPreWGroup1(node: Node, verse: Element): PreWTagGroup1 {
+  let preWTagGroup1: PreWTagGroup1 = new PreWTagGroup1();
+
+  preWTagGroup1 = new PreWTagGroup1();
+  preWTagGroup1.id = verse.id;
+  // preWTagGroup1.childNodes.push(node);
+  preWTagGroup1.length = node.textContent.length;
+  preWTagGroup1.classList = verse.className.split(' ');
+  preWTagGroup1.type = getPreWTagGroup1Type(node);
+  return preWTagGroup1;
 }
 
 function parseGroups(verse: Element): PreWTagGroup1[] {
@@ -118,59 +127,80 @@ function parseGroups(verse: Element): PreWTagGroup1[] {
 
   verse.childNodes.forEach(
     (child): void => {
-      if (!preWTagGroup1) {
-        preWTagGroup1 = new PreWTagGroup1();
-        preWTagGroup1.id = verse.id;
-        preWTagGroup1.childNodes.push(child);
-        preWTagGroup1.classList = verse.className.split(' ');
-        preWTagGroup1.type = getPreWTagGroup1Type(child);
-
-        if (
-          child.nodeName === 'A' ||
-          child.nodeName === 'RUBY' ||
-          (child as Element).hasAttribute('href')
-        ) {
-          preWTagGroup1s.push(preWTagGroup1);
-          preWTagGroup1 = undefined;
-        }
-      } else if (preWTagGroup1) {
-        switch (child.nodeName) {
-          case 'A':
-          case 'RUBY': {
-            // console.log('hggg');
-            // preWTagGroup1.id = verse.id;
+      switch (child.nodeName) {
+        case 'A':
+        case 'RUBY': {
+          if (preWTagGroup1) {
             preWTagGroup1s.push(preWTagGroup1);
-            preWTagGroup1 = undefined;
-            preWTagGroup1s.push({
-              classList: child.parentElement.className.split(' '),
-              childNodes: [child],
-              length: 0,
-              id: verse.id,
-              type: getPreWTagGroup1Type(child),
-            });
-            break;
           }
+          preWTagGroup1s.push(nodeToPreWGroup1(child, verse));
+          break;
+        }
 
-          default: {
-            if ((child as Element).hasAttribute('href')) {
-              preWTagGroup1s.push(preWTagGroup1);
-              preWTagGroup1s.push({
-                classList: child.parentElement.className.split(' '),
-                childNodes: [child],
-                length: 0,
-                id: verse.id,
-                type: getPreWTagGroup1Type(child),
-              });
-            } else {
-              preWTagGroup1.classList = child.parentElement.className.split(
-                ' ',
-              );
-              preWTagGroup1.childNodes.push(child);
-            }
-            break;
+        default: {
+          if (preWTagGroup1) {
+            preWTagGroup1.length =
+              preWTagGroup1.length + child.textContent.length;
+          } else {
+            preWTagGroup1 = nodeToPreWGroup1(child, verse);
           }
+          break;
         }
       }
+
+      // if (!preWTagGroup1) {
+      //   preWTagGroup1 = new PreWTagGroup1();
+      //   preWTagGroup1.id = verse.id;
+      //   preWTagGroup1.childNodes.push(child);
+      //   preWTagGroup1.classList = verse.className.split(' ');
+      //   preWTagGroup1.type = getPreWTagGroup1Type(child);
+
+      //   if (
+      //     child.nodeName === 'A' ||
+      //     child.nodeName === 'RUBY' ||
+      //     (child as Element).hasAttribute('href')
+      //   ) {
+      //     preWTagGroup1s.push(preWTagGroup1);
+      //     preWTagGroup1 = undefined;
+      //   }
+      // } else if (preWTagGroup1) {
+      //   switch (child.nodeName) {
+      //     case 'A':
+      //     case 'RUBY': {
+      //       // console.log('hggg');
+      //       // preWTagGroup1.id = verse.id;
+      //       preWTagGroup1s.push(preWTagGroup1);
+      //       preWTagGroup1 = undefined;
+      //       preWTagGroup1s.push({
+      //         classList: child.parentElement.className.split(' '),
+      //         childNodes: [child],
+      //         length: 0,
+      //         id: verse.id,
+      //         type: getPreWTagGroup1Type(child),
+      //       });
+      //       break;
+      //     }
+
+      //     default: {
+      //       if ((child as Element).hasAttribute('href')) {
+      //         preWTagGroup1s.push(preWTagGroup1);
+      //         preWTagGroup1s.push({
+      //           classList: child.parentElement.className.split(' '),
+      //           childNodes: [child],
+      //           length: 0,
+      //           id: verse.id,
+      //           type: getPreWTagGroup1Type(child),
+      //         });
+      //       } else {
+      //         preWTagGroup1.classList = child.parentElement.className.split(
+      //           ' ',
+      //         );
+      //         preWTagGroup1.childNodes.push(child);
+      //       }
+      //       break;
+      //     }
+      //   }
+      // }
     },
   );
 
@@ -190,22 +220,22 @@ function parseWTagStep1(document: Document): PreWTagGroup1[] {
       preWTagGroup1s = preWTagGroup1s.concat(parseGroups(verse));
     },
   );
-  preWTagGroup1s.forEach(
-    (preWTagGroup1): void => {
-      const length = preWTagGroup1.childNodes
-        .map(
-          (p): number => {
-            return p.textContent.length;
-          },
-        )
-        .reduce(
-          (p, c): number => {
-            return p + c;
-          },
-        );
-      preWTagGroup1.length = length;
-    },
-  );
+  // preWTagGroup1s.forEach(
+  //   (preWTagGroup1): void => {
+  //     const length = preWTagGroup1.childNodes
+  //       .map(
+  //         (p): number => {
+  //           return p.textContent.length;
+  //         },
+  //       )
+  //       .reduce(
+  //         (p, c): number => {
+  //           return p + c;
+  //         },
+  //       );
+  //     preWTagGroup1.length = length;
+  //   },
+  // );
   return preWTagGroup1s;
   // writeFileSync(
   //   normalize(`./data/${cuid()}.json`),
