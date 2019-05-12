@@ -1,6 +1,6 @@
 import cuid from 'cuid';
 import { W } from './models/w';
-import { queryVerses, convertTextNodeToNode } from './verses';
+import { queryVerses, convertTextNodeToNode, getElementIds } from './verses';
 import { writeFileSync } from 'fs-extra';
 import { normalize } from 'path';
 
@@ -63,10 +63,52 @@ export class WTagGroupRuby implements WTagGroup {
   public wRB: W[];
 }
 
+export class WTagGroupRubyA implements WTagGroup {
+  public charCountCompress: [number | number];
+  public charCount: [number | number] | undefined;
+  public type: WTagGroupType = WTagGroupType.Ruby;
+  public preRubyText: W[] | undefined;
+  public postRubyText: W[] | undefined;
+  public wRT: W[];
+  public wRB: W[];
+}
+
 class PreWTagGroup1 {
   public classList: string[] | undefined;
   public childNodes: Node[] = [];
   public length: number = 0;
+  public id: string;
+  public type: string;
+}
+class PreWTagGroup2 {
+  public classList: string[] | undefined;
+  public charCount: [number, number]; //= 0;
+  public type: string;
+  public id: string;
+}
+
+function getPreWTagGroup1Type(node: Node): string {
+  switch (node.nodeName) {
+    case 'A':
+    case 'RUBY': {
+      // console.log(
+      //   `${node.nodeName}  ${(node as Element).hasAttribute('href')}`,
+      // );
+
+      if (node.nodeName === 'RUBY' && (node as Element).hasAttribute('href')) {
+        // console.log('arubyadsf');
+
+        return 'ARuby';
+      } else {
+        return (node as Element).hasAttribute('href')
+          ? `A${node.nodeName}`
+          : node.nodeName;
+      }
+    }
+
+    default:
+      return 'text';
+  }
 }
 
 function parseGroups(verse: Element): PreWTagGroup1[] {
@@ -78,25 +120,53 @@ function parseGroups(verse: Element): PreWTagGroup1[] {
     (child): void => {
       if (!preWTagGroup1) {
         preWTagGroup1 = new PreWTagGroup1();
+        preWTagGroup1.id = verse.id;
         preWTagGroup1.childNodes.push(child);
+        preWTagGroup1.classList = verse.className.split(' ');
+        preWTagGroup1.type = getPreWTagGroup1Type(child);
+
+        if (
+          child.nodeName === 'A' ||
+          child.nodeName === 'RUBY' ||
+          (child as Element).hasAttribute('href')
+        ) {
+          preWTagGroup1s.push(preWTagGroup1);
+          preWTagGroup1 = undefined;
+        }
       } else if (preWTagGroup1) {
-        switch (verse.nodeName) {
+        switch (child.nodeName) {
           case 'A':
-          case 'Ruby': {
-            preWTagGroup1.classList = child.parentElement.className.split(' ');
+          case 'RUBY': {
+            // console.log('hggg');
+            // preWTagGroup1.id = verse.id;
             preWTagGroup1s.push(preWTagGroup1);
             preWTagGroup1 = undefined;
             preWTagGroup1s.push({
               classList: child.parentElement.className.split(' '),
               childNodes: [child],
               length: 0,
+              id: verse.id,
+              type: getPreWTagGroup1Type(child),
             });
             break;
           }
 
           default: {
-            preWTagGroup1.classList = child.parentElement.className.split(' ');
-            preWTagGroup1.childNodes.push(child);
+            if ((child as Element).hasAttribute('href')) {
+              preWTagGroup1s.push(preWTagGroup1);
+              preWTagGroup1s.push({
+                classList: child.parentElement.className.split(' '),
+                childNodes: [child],
+                length: 0,
+                id: verse.id,
+                type: getPreWTagGroup1Type(child),
+              });
+            } else {
+              preWTagGroup1.classList = child.parentElement.className.split(
+                ' ',
+              );
+              preWTagGroup1.childNodes.push(child);
+            }
             break;
           }
         }
@@ -111,9 +181,7 @@ function parseGroups(verse: Element): PreWTagGroup1[] {
   return preWTagGroup1s;
 }
 
-export function parseWTagGroups(document: Document): WTagGroup[] {
-  const wTagGroups: WTagGroup[] = [];
-
+function parseWTagStep1(document: Document): PreWTagGroup1[] {
   let preWTagGroup1s: PreWTagGroup1[] = [];
   const verses = queryVerses(document);
   verses.forEach(
@@ -122,7 +190,6 @@ export function parseWTagGroups(document: Document): WTagGroup[] {
       preWTagGroup1s = preWTagGroup1s.concat(parseGroups(verse));
     },
   );
-
   preWTagGroup1s.forEach(
     (preWTagGroup1): void => {
       const length = preWTagGroup1.childNodes
@@ -139,20 +206,75 @@ export function parseWTagGroups(document: Document): WTagGroup[] {
       preWTagGroup1.length = length;
     },
   );
+  return preWTagGroup1s;
+  // writeFileSync(
+  //   normalize(`./data/${cuid()}.json`),
+  //   JSON.stringify(
+  //     preWTagGroup1s.map(child => {
+  //       return {
+  //         classList: child.classList,
+  //         length: child.length,
+  //         id: child.id,
+  //         // chlid: child.childNodes.map(c => {
+  //         //   return (c as Element).outerHTML;
+  //         // }),
+  //       };
+  //     }),
+  //   ),
+  // );
+}
+
+function parseWTagGroupStrp2(
+  verseIds: string[],
+  preWTagGroup1s: PreWTagGroup1[],
+): void {
+  const preWTagGroup2s: PreWTagGroup2[] = [];
+  verseIds.map(
+    (verseId): void => {
+      let count = 0;
+      preWTagGroup1s
+        .filter(
+          (preWTagGroup1): boolean => {
+            return preWTagGroup1.id === verseId;
+          },
+        )
+        .map(
+          (preWTagGroup1): void => {
+            const preWTagGroup2: PreWTagGroup2 = new PreWTagGroup2();
+            preWTagGroup2.charCount = [count, count + preWTagGroup1.length];
+            count = count + preWTagGroup1.length + 1;
+            preWTagGroup2.classList = preWTagGroup1.classList;
+            preWTagGroup2.id = preWTagGroup1.id;
+            preWTagGroup2.type = preWTagGroup1.type;
+            // console.log(preWTagGroup1.type);
+
+            preWTagGroup2s.push(preWTagGroup2);
+          },
+        );
+    },
+  );
+
+  console.log(`${preWTagGroup1s.length}  ${preWTagGroup2s.length}`);
+
   writeFileSync(
     normalize(`./data/${cuid()}.json`),
-    JSON.stringify(
-      preWTagGroup1s.map(child => {
-        return {
-          classList: child.classList,
-          length: child.length,
-          chlid: child.childNodes.map(c => {
-            return (c as Element).outerHTML;
-          }),
-        };
-      }),
-    ),
+    JSON.stringify(preWTagGroup2s),
   );
+  // getEkementIds()
+}
+
+export function parseWTagGroups(document: Document): WTagGroup[] {
+  console.log(document.querySelectorAll('ruby[href]').length);
+
+  const preWTagGroup1s = parseWTagStep1(document);
+  // const preWTagGroup2 =
+  parseWTagGroupStrp2(
+    getElementIds(Array.from(queryVerses(document))),
+    preWTagGroup1s,
+  );
+  // console.log(preWTagGroup2);
+
+  const wTagGroups: WTagGroup[] = [];
 
   return wTagGroups;
 }

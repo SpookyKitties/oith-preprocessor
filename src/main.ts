@@ -15,10 +15,11 @@ async function processFiles(fileNames: string[]): Promise<void> {
       const document = jsdom.window.document;
       // console.log(document.documentElement.innerHTML);
       console.log();
-      if (document.querySelectorAll('a[href*=".."] ruby').length > 0) {
-        console.log(fileName);
-      }
+      // if (document.querySelectorAll('a[href*=".."] ruby').length > 0) {
+      //   console.log(fileName);
+      // }
       removeRubyInAElements(document);
+      console.log(document.querySelectorAll('ruby[href]').length);
       parseWTagGroups(document);
       try {
         await writeFile(

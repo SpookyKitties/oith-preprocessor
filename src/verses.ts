@@ -26,8 +26,6 @@ function convertHrefs(document: Document): void {
         } catch (error) {
           console.log(error);
         }
-      } else {
-        console.log(a.outerHTML);
       }
     },
   );
@@ -43,7 +41,7 @@ export function convertTextNodeToNode(
   document: Document,
   element: Element,
 ): void {
-  console.log(element.outerHTML);
+  // console.log(element.outerHTML);
 
   Array.from(element.childNodes)
     .filter(
@@ -84,4 +82,15 @@ export function queryARubyParents(document: Document): Element[] {
     },
   );
   return parents;
+}
+
+export function getElementIds(elements: Element[] | Element): string[] {
+  return ((elements as []).map
+    ? (elements as Element[])
+    : ([elements] as Element[])
+  ).map(
+    (element): string => {
+      return element.id;
+    },
+  );
 }
