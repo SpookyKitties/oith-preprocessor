@@ -52,9 +52,7 @@ export function convertTextNodeToNode(
     .map(
       (e): void => {
         const newElement = document.createElement('span');
-        if (e.textContent.includes('一―二十​')) {
-          console.log(e.textContent);
-        }
+
         newElement.textContent = e.textContent;
         element.replaceChild(newElement, e);
       },

@@ -1,4 +1,5 @@
 import { WTagGroup } from '../wTagGroups';
+import { W } from './w';
 
 export class Verse {
   public _id: string;
@@ -6,4 +7,5 @@ export class Verse {
   public wTagGroups: WTagGroup[];
   public classList: string[] | undefined;
   public text: string;
+  public wTags: W[];
 }

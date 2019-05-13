@@ -130,16 +130,6 @@ function parseGroups(verse: Element): PreWTagGroup1[] {
 
   let preWTagGroup1: PreWTagGroup1 | undefined;
 
-  const temp = Array.from(verse.childNodes);
-  if (verse.id === 'study_summary1') {
-    console.log(
-      temp.map(
-        (child): number => {
-          return child.textContent.length;
-        },
-      ),
-    );
-  }
   Array.from(verse.childNodes).map(
     (child): void => {
       switch (child.nodeName) {
@@ -204,10 +194,6 @@ function parseWTagGroupStrp2(
             const preWTagGroup2: PreWTagGroup2 = new PreWTagGroup2();
             preWTagGroup2.charCount = [count, count + preWTagGroup1.length];
 
-            if (preWTagGroup1.id === 'study_summary1') {
-              console.log(preWTagGroup2.charCount);
-            }
-
             count = count + preWTagGroup1.length + 1;
             preWTagGroup2.classList = preWTagGroup1.classList;
             preWTagGroup2.id = preWTagGroup1.id;
@@ -220,7 +206,6 @@ function parseWTagGroupStrp2(
     },
   );
 
-  console.log(`${preWTagGroup1s.length}  ${preWTagGroup2s.length}`);
   return preWTagGroup2s;
 }
 function preWTagGroup2sToWTagGroup(
@@ -279,6 +264,7 @@ function preWTagGroup2ToVerse(
         classList: verse.className.split(' '),
         text: verse.textContent,
         wTagGroups: preGroup,
+        wTags: [],
       });
     },
   );
@@ -286,18 +272,16 @@ function preWTagGroup2ToVerse(
 
   return verses;
 }
-export function parseWTagGroups(document: Document): WTagGroup[] {
-  console.log(document.querySelectorAll('ruby[href]').length);
-
+export function parseWTagGroups(document: Document): Verse[] {
   const verseElements = Array.from(queryVerses(document));
   const preWTagGroup1s = parseWTagStep1(document);
   const preWTagGroup2 = parseWTagGroupStrp2(
     getElementIds(verseElements),
     preWTagGroup1s,
   );
-  preWTagGroup2ToVerse(preWTagGroup2, verseElements);
+  return preWTagGroup2ToVerse(preWTagGroup2, verseElements);
 
-  const wTagGroups: WTagGroup[] = [];
+  // const wTagGroups: WTagGroup[] = [];
 
-  return wTagGroups;
+  // return wTagGroups;
 }

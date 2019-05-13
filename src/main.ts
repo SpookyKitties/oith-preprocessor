@@ -3,6 +3,7 @@ import { getFiles } from './files';
 import { loadFile } from './dom';
 // import { queryWTags } from './wtags';
 // import { parseWTagGroups } from './wTagGroups';
+import { flatten } from 'lodash';
 import { basename, normalize } from 'path';
 import { writeFile } from 'fs-extra';
 import { removeRubyInAElements } from './flattenWTags';
@@ -14,19 +15,30 @@ async function processFiles(fileNames: string[]): Promise<void> {
     async (fileName): Promise<void> => {
       const jsdom = await loadFile(fileName);
       const document = jsdom.window.document;
-      // console.log(document.documentElement.innerHTML);
-      console.log();
-      // if (document.querySelectorAll('a[href*=".."] ruby').length > 0) {
-      //   console.log(fileName);
-      // }
+
       removeRubyInAElements(document);
-      // console.log(document.querySelectorAll('ruby[href]').length);
-      parseWTagGroups(document);
-      await queryWTags(document);
+      const verses = parseWTagGroups(document);
+      const wTags = flatten(await queryWTags(document));
+      console.log(wTags);
+
+      verses.map(
+        (verse): void => {
+          verse.wTags = wTags.filter(
+            (w): boolean => {
+              return w.verseID === verse._id;
+            },
+          );
+          if (verse.wTags.length > 0) {
+            console.log(verse.wTags);
+          } else {
+            verse.wTags = undefined;
+          }
+        },
+      );
       try {
         await writeFile(
-          normalize(`./data/${basename(fileName)}`),
-          document.documentElement.outerHTML,
+          normalize(`./data/${basename(fileName.replace('html', 'json'))}`),
+          JSON.stringify(verses),
         );
       } catch {}
 

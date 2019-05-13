@@ -26,10 +26,6 @@ function getNewClassList(child: Element, newClassList: string[]): string[] {
     )
     .map(
       (attr): void => {
-        if (attr.value === '128392075') {
-          console.log('[o-ref="128392075"]');
-        }
-
         if (attr.name.toLowerCase() === 'classname') {
           newClassList = newClassList.concat(attr.value.split(' '));
         } else {
@@ -129,13 +125,6 @@ function compressPreWTags(wTagStage1: WTagStage1[]): WTagStage1[] {
         },
       );
       const wTag = first(wTagStage1Filtered);
-      console.log(
-        wTagStage1Filtered.map(
-          (w): number => {
-            return w.characterCount[0];
-          },
-        ),
-      );
 
       newWTagStage1.push({
         classList: [i],
@@ -336,9 +325,6 @@ function convertWTagStage1ToWTag(wTagStage1s: WTagStage1[]): W[] {
 
   wTagStage1s.map(
     (wTagStage1): void => {
-      if (first(wTagStage1.classList) === '128392075') {
-        console.log(isRef(wTagStage1.classList as string));
-      }
       if (isIgnore(wTagStage1.classList as string[])) {
       } else if (isRef(wTagStage1.classList as string)) {
         wTags.push(convertClassToRef(wTagStage1));
@@ -366,13 +352,14 @@ function verseToWTags(verseElement: Element): W[] {
   //   },
   // );
 }
-export async function queryWTags(document: Document): Promise<void> {
+export async function queryWTags(document: Document): Promise<W[][]> {
   const verseElements = nodeListOfToArray(queryVerses(document));
   const wTags = verseElements.map(
     (verseElement): W[] => {
       return verseToWTags(verseElement);
     },
   );
+  return wTags;
   await writeFile(
     normalize(`./data/${cuid()}-w2.json`),
     JSON.stringify(
