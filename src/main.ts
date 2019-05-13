@@ -20,7 +20,7 @@ async function processFiles(fileNames: string[]): Promise<void> {
       //   console.log(fileName);
       // }
       removeRubyInAElements(document);
-      console.log(document.querySelectorAll('ruby[href]').length);
+      // console.log(document.querySelectorAll('ruby[href]').length);
       parseWTagGroups(document);
       await queryWTags(document);
       try {
@@ -37,7 +37,7 @@ async function processFiles(fileNames: string[]): Promise<void> {
 
 async function main(): Promise<void> {
   await processFiles(await getFiles());
-  console.log('asdf');
+  // console.log('asdf');
 }
 
 main();

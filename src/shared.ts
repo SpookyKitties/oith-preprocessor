@@ -20,3 +20,9 @@ export function getRanges(array: number[]): [number, number][] {
   }
   return ranges;
 }
+
+export function nodeListOfToArray<T extends Node>(
+  nodeListOf: NodeListOf<T>,
+): T[] {
+  return Array.from(nodeListOf);
+}

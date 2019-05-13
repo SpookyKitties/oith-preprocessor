@@ -60,8 +60,8 @@ export function removeRubyInAElements(document: Document): void {
       parent.remove();
     },
   );
-  console.log('Finished');
-  console.log(document.querySelectorAll('ruby[href]').length);
+  // console.log('Finished');
+  // console.log(document.querySelectorAll('ruby[href]').length);
 
   return;
 

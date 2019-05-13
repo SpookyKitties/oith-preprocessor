@@ -1,8 +1,9 @@
 export interface W {
-  charCount: number[];
+  charCount: [number, number][];
   optional: boolean | undefined;
   wType: WType;
   text: string | undefined;
+  verseID: string;
 }
 
 export enum WType {
@@ -23,14 +24,36 @@ export enum NoteType {
 }
 
 export class BaseW implements W {
-  public charCount: number[];
+  public verseID: string;
+  public charCount: [number, number][];
   public optional: boolean;
   public wType: WType = WType.Base;
   public text: string;
 }
 
 export enum RichText {
-  VerseNumber = 0,
+  verseNumber = 0,
+
+  clarityWord,
+  translit,
+  language,
+  deityName,
+  smallCaps,
+  uppercase,
+  entry,
+  closing,
+  signature,
+  shortTitle,
+  break,
+  salutation,
+  office,
+  date,
+  addressee,
+  answer,
+  question,
+  line,
+  paraMark,
+  selah,
 }
 export enum Poetry {
   Poetry = 0,
@@ -40,7 +63,8 @@ export enum Poetry {
 export enum Color {}
 
 export class WRef implements W {
-  public charCount: number[];
+  public verseID: string;
+  public charCount: [number, number][];
   public optional: boolean;
   public wType: WType = WType.Refs;
   public text: string | undefined;
@@ -49,7 +73,8 @@ export class WRef implements W {
 }
 
 export class WRichText implements W {
-  public charCount: number[];
+  public verseID: string;
+  public charCount: [number, number][];
   public optional: boolean;
   public wType: WType = WType.RichText;
   public text: string | undefined;
@@ -57,7 +82,8 @@ export class WRichText implements W {
 }
 
 export class WHighlight implements W {
-  public charCount: number[];
+  public verseID: string;
+  public charCount: [number, number][];
   public optional: boolean;
   public wType: WType = WType.Highlight;
   public text: string | undefined;
@@ -65,14 +91,16 @@ export class WHighlight implements W {
 }
 
 export class WUnderline implements W {
-  public charCount: number[];
+  public verseID: string;
+  public charCount: [number, number][];
   public optional: boolean;
   public wType: WType = WType.Underline;
   public text: string | undefined;
 }
 
 export class WPoetry implements W {
-  public charCount: number[];
+  public verseID: string;
+  public charCount: [number, number][];
   public optional: boolean;
   public wType: WType;
   public text: string | undefined;
@@ -80,7 +108,8 @@ export class WPoetry implements W {
 }
 
 export class WLink implements W {
-  public charCount: number[];
+  public verseID: string;
+  public charCount: [number, number][];
   public optional: boolean;
   public wType: WType = WType.Link;
   public text: string | undefined;
