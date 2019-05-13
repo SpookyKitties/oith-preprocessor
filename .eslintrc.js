@@ -5,6 +5,11 @@ module.exports = {
     'prettier',
     'prettier/@typescript-eslint',
   ],
+  rules: {
+    eqeqeq: ['error', 'always'],
+    'no-var': 'error',
+    'prefer-const': 'error',
+  },
   parserOptions: {
     ecmaVersion: 2018, // Allows for the parsing of modern ECMAScript features
     sourceType: 'module', // Allows for the use of imports

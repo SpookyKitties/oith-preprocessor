@@ -7,7 +7,7 @@ import { basename, normalize } from 'path';
 import { writeFile } from 'fs-extra';
 import { removeRubyInAElements } from './flattenWTags';
 import { parseWTagGroups } from './wTagGroups';
-import { queryWTags2, queryWTags } from './wtags';
+import { queryWTags } from './wtags';
 
 async function processFiles(fileNames: string[]): Promise<void> {
   fileNames.slice(0, 10000).forEach(
@@ -23,7 +23,6 @@ async function processFiles(fileNames: string[]): Promise<void> {
       console.log(document.querySelectorAll('ruby[href]').length);
       parseWTagGroups(document);
       await queryWTags(document);
-      await queryWTags2(document);
       try {
         await writeFile(
           normalize(`./data/${basename(fileName)}`),
