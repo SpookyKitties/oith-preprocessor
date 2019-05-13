@@ -28,8 +28,6 @@ function getWTag(
 ): void {
   switch (element.nodeName) {
     case '#text': {
-      // console.log(cssClasses);
-
       if (element.textContent) {
         element.textContent.split('').forEach(
           (c): void => {
@@ -48,8 +46,7 @@ function getWTag(
         (child): void => {
           let newCssClassList: string[] = (child as Element).className
             ? (child as Element).className.split(' ')
-            : []; // ;
-          // console.log((child as Element).className);
+            : [];
 
           if (cssClasses) {
             newCssClassList = cssClasses.concat(newCssClassList);
@@ -69,7 +66,6 @@ function getWTag(
                     },
                   ),
               );
-            // console.log();
           } catch (error) {
             console.log(error);
           }
@@ -133,8 +129,6 @@ async function groupWTags(test: PreWStage1[]): Promise<PreWStage3[]> {
     },
   );
 
-  // console.log(test3);
-
   return test3;
 }
 
@@ -191,39 +185,89 @@ async function preWTagProccess(
   verses.push({ id: verseElement.id, test3: s4 });
 }
 
-export async function queryWTags(document: Document): Promise<void> {
+export async function queryWTags2(document: Document): Promise<void> {
   const verses: { id: string; test3: PreWStage4[] }[] = [];
 
   const p: Promise<void>[] = [];
   Array.from(queryVerses(document)).forEach(
     async (verseElement): Promise<void> => {
       p.push(preWTagProccess(verseElement, verses));
-      // console.log(
-      //   test
-      //     .filter(
-      //       (t): boolean => {
-      //         return t.cssClasses.length > 0;
-      //       },
-      //     )
-      //     .map(t => {
-      //       return t.cssClasses.map(c => {
-      //         return c;
-      //       });
-      //     }),
-      // );
-      // console.log(test);
-
-      // console.log(
-      //   Array.from(verseElement.childNodes).map(
-      //     (childNode): string => {
-      //       return childNode.nodeName;
-      //     },
-      //   ),
-      // );
     },
   );
   await Promise.all(p);
   await writeFile(normalize(`./data/${cuid()}.json`), JSON.stringify(verses));
+}
 
-  // console.log(verses);
+function nodeListOfToArray<T extends Node>(nodeListOf: NodeListOf<T>): T[] {
+  return Array.from(nodeListOf);
+}
+
+class WTagStage1 {
+  public verseID: string;
+  public classList: string[];
+}
+
+function childToWTags(
+  child: Element,
+  wTagStage1: WTagStage1[],
+  verseID: string,
+  classList: string[] = [],
+): void {
+  switch (child.nodeName) {
+    case '#text': {
+      wTagStage1.push({ classList: classList, verseID: verseID });
+      break;
+    }
+
+    default: {
+      let newCssClassList: string[] = classList;
+      Array.from(child.attributes)
+        .filter(
+          (attr): boolean => {
+            return attr.name !== 'n';
+          },
+        )
+        .map(
+          (attr): void => {
+            if (attr.name.toLowerCase() === 'classname') {
+              newCssClassList = newCssClassList.concat(attr.value.split(' '));
+            } else {
+              newCssClassList = newCssClassList.concat(attr.value.split(','));
+              console.log(attr.value.split(','));
+              console.log(newCssClassList);
+
+              // console.log(newCssClassList);
+            }
+          },
+        );
+      nodeListOfToArray(child.childNodes).map(
+        (child2): void => {
+          childToWTags(child2 as Element, wTagStage1, verseID, newCssClassList);
+        },
+      );
+      break;
+    }
+  }
+}
+
+function verseToWTags(verseElement: Element): WTagStage1[] {
+  const wTagStage1: WTagStage1[] = [];
+  nodeListOfToArray(verseElement.childNodes).map(
+    (child): void => {
+      childToWTags(child as Element, wTagStage1, verseElement.id);
+    },
+  );
+  return wTagStage1;
+}
+
+export async function queryWTags(document: Document): Promise<void> {
+  const verseElements = nodeListOfToArray(queryVerses(document));
+  verseElements.map(
+    async (verseElement): Promise<void> => {
+      await writeFile(
+        normalize(`./data/${cuid()}-w2.json`),
+        JSON.stringify(verseToWTags(verseElement)),
+      );
+    },
+  );
 }
