@@ -13,7 +13,7 @@ export enum WTagGroupType {
   RB = 4,
   RT = 5,
 }
-/// WTagGroups exist to provide a parent tag for the basic text groupings found in the document.
+
 /*
   WTagGroups were necessitaed by the need to preserve some the existing structure found in the source files,
   without having to include the information as WTag information. During development of the WTags, two potentially
@@ -117,8 +117,8 @@ function nodeToPreWGroup1(node: Node, verse: Element): PreWTagGroup1 {
 
   preWTagGroup1 = new PreWTagGroup1();
   preWTagGroup1.id = verse.id;
-  // preWTagGroup1.childNodes.push(node);
-  preWTagGroup1.length = node.textContent.length;
+
+  preWTagGroup1.length = node.textContent.length - 1;
   preWTagGroup1.classList = verse.className.split(' ');
   preWTagGroup1.type = getPreWTagGroup1Type(node);
   preWTagGroup1.href = (node as Element).getAttribute('href');
@@ -130,6 +130,16 @@ function parseGroups(verse: Element): PreWTagGroup1[] {
 
   let preWTagGroup1: PreWTagGroup1 | undefined;
 
+  const temp = Array.from(verse.childNodes);
+  if (verse.id === 'study_summary1') {
+    console.log(
+      temp.map(
+        (child): number => {
+          return child.textContent.length;
+        },
+      ),
+    );
+  }
   verse.childNodes.forEach(
     (child): void => {
       switch (child.nodeName) {
@@ -137,6 +147,7 @@ function parseGroups(verse: Element): PreWTagGroup1[] {
         case 'RUBY': {
           if (preWTagGroup1) {
             preWTagGroup1s.push(preWTagGroup1);
+            preWTagGroup1 = undefined;
           }
           preWTagGroup1s.push(nodeToPreWGroup1(child, verse));
           break;
@@ -156,7 +167,6 @@ function parseGroups(verse: Element): PreWTagGroup1[] {
   );
 
   if (preWTagGroup1) {
-    // console.log(preWTagGroup1.childNodes.length);
     preWTagGroup1s.push(preWTagGroup1);
   }
   return preWTagGroup1s;
@@ -171,38 +181,8 @@ function parseWTagStep1(document: Document): PreWTagGroup1[] {
       preWTagGroup1s = preWTagGroup1s.concat(parseGroups(verse));
     },
   );
-  // preWTagGroup1s.forEach(
-  //   (preWTagGroup1): void => {
-  //     const length = preWTagGroup1.childNodes
-  //       .map(
-  //         (p): number => {
-  //           return p.textContent.length;
-  //         },
-  //       )
-  //       .reduce(
-  //         (p, c): number => {
-  //           return p + c;
-  //         },
-  //       );
-  //     preWTagGroup1.length = length;
-  //   },
-  // );
+
   return preWTagGroup1s;
-  // writeFileSync(
-  //   normalize(`./data/${cuid()}.json`),
-  //   JSON.stringify(
-  //     preWTagGroup1s.map(child => {
-  //       return {
-  //         classList: child.classList,
-  //         length: child.length,
-  //         id: child.id,
-  //         // chlid: child.childNodes.map(c => {
-  //         //   return (c as Element).outerHTML;
-  //         // }),
-  //       };
-  //     }),
-  //   ),
-  // );
 }
 
 function parseWTagGroupStrp2(
@@ -223,12 +203,16 @@ function parseWTagGroupStrp2(
           (preWTagGroup1): void => {
             const preWTagGroup2: PreWTagGroup2 = new PreWTagGroup2();
             preWTagGroup2.charCount = [count, count + preWTagGroup1.length];
+
+            if (preWTagGroup1.id === 'study_summary1') {
+              console.log(preWTagGroup2.charCount);
+            }
+
             count = count + preWTagGroup1.length + 1;
             preWTagGroup2.classList = preWTagGroup1.classList;
             preWTagGroup2.id = preWTagGroup1.id;
             preWTagGroup2.type = preWTagGroup1.type;
             preWTagGroup2.href = preWTagGroup1.href;
-            // console.log(preWTagGroup1.type);
 
             preWTagGroup2s.push(preWTagGroup2);
           },
@@ -238,8 +222,6 @@ function parseWTagGroupStrp2(
 
   console.log(`${preWTagGroup1s.length}  ${preWTagGroup2s.length}`);
   return preWTagGroup2s;
-
-  // getEkementIds()
 }
 function preWTagGroup2sToWTagGroup(
   preWTagGroup2s: PreWTagGroup2[],
@@ -314,37 +296,8 @@ export function parseWTagGroups(document: Document): WTagGroup[] {
     preWTagGroup1s,
   );
   preWTagGroup2ToVerse(preWTagGroup2, verseElements);
-  // console.log(preWTagGroup2);
 
   const wTagGroups: WTagGroup[] = [];
 
   return wTagGroups;
 }
-
-// Array.from(document.querySelector('#p2').childNodes)
-//   .filter(child => {
-//     return child.nodeName === 'W';
-//   })
-//   .forEach(child => {
-//     Array.from(child.childNodes)
-//       .filter(d => {
-//         return d.nodeName !== '#text';
-//       })
-//       .forEach(c => {
-//         child.parentElement.insertBefore(c, child);
-//       });
-//   });
-
-// Array.from(document.querySelector('a ruby').parentElement.attributes).forEach(
-//   attr => {
-//     const ruby = document.querySelector('a ruby');
-//     if (ruby && attr) {
-//       ruby.setAttribute(attr.name, attr.value);
-//
-//     }
-//   },
-// );
-
-// document.querySelectorAll('ruby').forEach(ruby => {
-//
-// });
