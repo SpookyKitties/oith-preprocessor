@@ -1,7 +1,7 @@
 import { queryVerses, queryARubyParents } from './verses';
 
 export function copyAttributes(from: Element, to: Element): void {
-  Array.from(from.attributes).forEach(
+  Array.from(from.attributes).map(
     (attr): void => {
       if (attr && to.hasAttribute && !to.hasAttribute(attr.name)) {
         if (attr.name === 'href' && !attr.value.startsWith('#')) {
@@ -42,7 +42,7 @@ function convertTextNodeToNode(document: Document, element: Element): void {
 
 export function removeRubyInAElements(document: Document): void {
   const verseElements = queryVerses(document);
-  queryARubyParents(document).forEach(
+  queryARubyParents(document).map(
     (parent): void => {
       Array.from(parent.childNodes)
         .filter(
@@ -50,7 +50,7 @@ export function removeRubyInAElements(document: Document): void {
             return (child as Element).outerHTML !== undefined;
           },
         )
-        .forEach(
+        .map(
           (child): void => {
             copyAttributes(parent, child as Element);
             parent.insertAdjacentElement('beforebegin', child as Element);

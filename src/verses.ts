@@ -1,5 +1,5 @@
 function convertHrefs(document: Document): void {
-  document.querySelectorAll(`a[href*='..']`).forEach(
+  Array.from(document.querySelectorAll(`a[href*='..']`)).map(
     (a): void => {
       const regex = new RegExp(
         /((?<=(([\.\.\/]{2,3}))(scriptures\/)(.+?\/)).+\/.+)/s,
@@ -66,7 +66,7 @@ export function queryARubyParents(document: Document): Element[] {
   const t: string[] = ['a[href] ruby'];
   const parents: Element[] = [];
 
-  verseElements.forEach(
+  Array.from(verseElements).map(
     (verseElement): void => {
       verseElement.querySelectorAll(t.toString()).forEach(
         (ar): void => {

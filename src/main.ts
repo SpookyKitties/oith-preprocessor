@@ -10,7 +10,7 @@ import { parseWTagGroups } from './wTagGroups';
 import { queryWTags } from './wtags';
 
 async function processFiles(fileNames: string[]): Promise<void> {
-  fileNames.slice(0, 10000).forEach(
+  const files = fileNames.slice(0, 10000).map(
     async (fileName): Promise<void> => {
       const jsdom = await loadFile(fileName);
       const document = jsdom.window.document;
@@ -33,6 +33,10 @@ async function processFiles(fileNames: string[]): Promise<void> {
       // queryWTags(document);
     },
   );
+
+  await Promise.all(files);
+
+  console.log('asdfopijasdf');
 }
 
 async function main(): Promise<void> {

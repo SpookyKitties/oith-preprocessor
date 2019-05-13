@@ -140,7 +140,7 @@ function parseGroups(verse: Element): PreWTagGroup1[] {
       ),
     );
   }
-  verse.childNodes.forEach(
+  Array.from(verse.childNodes).map(
     (child): void => {
       switch (child.nodeName) {
         case 'A':
@@ -175,7 +175,7 @@ function parseGroups(verse: Element): PreWTagGroup1[] {
 function parseWTagStep1(document: Document): PreWTagGroup1[] {
   let preWTagGroup1s: PreWTagGroup1[] = [];
   const verses = queryVerses(document);
-  verses.forEach(
+  Array.from(verses).map(
     (verse): void => {
       convertTextNodeToNode(document, verse);
       preWTagGroup1s = preWTagGroup1s.concat(parseGroups(verse));
