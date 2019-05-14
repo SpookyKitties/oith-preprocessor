@@ -60,7 +60,18 @@ export enum Poetry {
   Prose = 1,
 }
 
-export enum Color {}
+export enum Color {
+  yellow,
+  blue,
+  green,
+  red,
+  purple,
+  orange,
+  pink,
+  gray,
+  brown,
+  darkBlue,
+}
 
 export class WRef implements W {
   public verseID: string;

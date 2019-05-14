@@ -136,6 +136,11 @@ function compressPreWTags(wTagStage1: WTagStage1[]): WTagStage1[] {
               },
             ),
           ),
+        ).map(
+          (r): [number, number] => {
+            r[1] = r[1] + 1;
+            return r;
+          },
         ),
         text: wTag.text,
         verseID: wTag.verseID,
